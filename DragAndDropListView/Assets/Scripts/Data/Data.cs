@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Data
+{
+    [CreateAssetMenu(fileName = "Data", menuName = "Scriptable Objects/Data")]
+    public class Data : ScriptableObject
+    {
+        public List<DataItem> Items;
+    }
+
+    [Serializable]
+    public record DataItem
+    {
+        public string Name;
+        public int Value;
+    }
+}

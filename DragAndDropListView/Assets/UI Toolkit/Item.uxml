@@ -1,0 +1,10 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="container" style="flex-grow: 1; flex-direction: row;">
+        <engine:VisualElement name="dragArea" style="flex-grow: 0; width: 50px; background-color: rgb(209, 164, 31);" />
+        <engine:Label text="Label" name="name" style="flex-grow: 1;">
+            <Bindings>
+                <engine:DataBinding property="text" data-source-path="Items[0].Name" data-source-type="Data.Data, Assembly-CSharp" binding-mode="ToTarget" />
+            </Bindings>
+        </engine:Label>
+    </engine:VisualElement>
+</engine:UXML>
