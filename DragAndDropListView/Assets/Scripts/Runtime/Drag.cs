@@ -15,7 +15,7 @@ namespace Runtime
 
         // private int targetIndex; -> wegen bringitemtofront
         private VisualElement m_CurrentlyHoveredItem;
-        private VisualElement m_ghostItem;
+        // private VisualElement m_ghostItem;
         private VisualTreeAsset m_itemTemplate;
 
         public Drag(VisualElement element, ListView listView, VisualTreeAsset itemTemplate)
@@ -54,31 +54,31 @@ namespace Runtime
 
             // itemRoot.style.position = Position.Absolute;
 
-            Debug.Log(evt.target);
-            
-            m_ghostItem = m_itemTemplate.CloneTree();
-
-            m_ghostItem.style.position = Position.Absolute;
-            var itemLocalPos = itemRoot.parent.WorldToLocal(itemRoot.worldBound.position);
-            m_ghostItem.style.left = itemLocalPos.x;
-            m_ghostItem.style.top = itemLocalPos.y;
-            m_ghostItem.style.opacity = 0.4f;
-            m_ghostItem.pickingMode = PickingMode.Position;
-            m_ghostItem.name = "ghostItem";
-            itemRoot.parent.Add(m_ghostItem);
-
-            // hide original while dragging so layout doesn't collapse visually
-            itemRoot.style.visibility = Visibility.Hidden;
+            // m_ghostItem = m_itemTemplate.CloneTree();
+            //
+            // if (m_ghostItem != null)
+            // {
+            //     m_ghostItem.style.position = Position.Absolute;
+            //     var itemLocalPos = itemRoot.parent.WorldToLocal(itemRoot.worldBound.position);
+            //     m_ghostItem.style.left = itemLocalPos.x;
+            //     m_ghostItem.style.top = itemLocalPos.y;
+            //     m_ghostItem.style.opacity = 0.f;
+            //     m_ghostItem.pickingMode = PickingMode.Ignore;
+            //     itemRoot.parent.Add(m_ghostItem);
+            //
+            //     // hide original while dragging so layout doesn't collapse visually
+            //     itemRoot.style.visibility = Visibility.Hidden;
+            // }
             
             m_IsDragging = true;
             
             m_ElementStartWorld = itemRoot.worldBound.position;
             m_PointerStartPanel = evt.position;
-            target = m_ghostItem;
+            
             // itemRoot.BringToFront();
             target.CapturePointer(evt.pointerId);
             target.RegisterCallback<PointerMoveEvent>(OnCapturedMove);
-            evt.StopPropagation();
+            // evt.StopPropagation();
         }
 
         private void OnCapturedMove(PointerMoveEvent evt)
@@ -99,8 +99,6 @@ namespace Runtime
             
             var content = m_ListView.Q("unity-content-container");
             Debug.Log("dragged item index " + content.IndexOf(itemRoot) + "slot index " + content.IndexOf(m_CurrentlyHoveredItem));
-            
-            evt.StopPropagation();
         }
 
         private VisualElement FindClosestOverlappingItem(Vector3 evtPosition)
@@ -114,13 +112,10 @@ namespace Runtime
             {
                 if (child == itemRoot)
                     continue;
-                
-                if(child == m_ghostItem)
-                    continue;
 
                 var childBounds = child.worldBound;
                 
-                if (childBounds.Overlaps(m_ghostItem.worldBound))
+                if (childBounds.Overlaps(itemRoot.worldBound))
                 {
                     var childCenter = childBounds.center;
                     var distance = Vector2.Distance(evtPosition, childCenter);
@@ -148,16 +143,12 @@ namespace Runtime
             var pointerCurrent = (Vector2)evt.position;
             var pointerDelta = pointerCurrent - m_PointerStartPanel;
             var newWorldPosition = m_ElementStartWorld + pointerDelta;
-            var newLocalPosition = target.parent.WorldToLocal(newWorldPosition);
-            // var newLocalPosition = itemRoot.parent.WorldToLocal(newWorldPosition);
+            var newLocalPosition = itemRoot.parent.WorldToLocal(newWorldPosition);
             
-            m_ghostItem.style.left = newLocalPosition.x;
-            m_ghostItem.style.top = newLocalPosition.y;
+            itemRoot.style.left = newLocalPosition.x;
+            itemRoot.style.top = newLocalPosition.y;
             
-            // itemRoot.style.left = newLocalPosition.x;
-            // itemRoot.style.top = newLocalPosition.y;
-            
-            evt.StopPropagation();
+            // evt.StopPropagation();
         }
 
         private void OnPointerUp(PointerUpEvent evt)
@@ -167,11 +158,6 @@ namespace Runtime
 
             target.ReleasePointer(evt.pointerId);
             
-            m_ghostItem.RemoveFromHierarchy();
-            m_ghostItem = null;
-            target = null;
-            itemRoot.style.visibility = Visibility.Visible;
-            
             var content = m_ListView.Q("unity-content-container");
             
             int draggedIndex = content.IndexOf(itemRoot);
@@ -179,7 +165,7 @@ namespace Runtime
             
             
             m_ListView.viewController.Move(draggedIndex, targetIndex);
-            // itemRoot.style.position = Position.Relative;
+            itemRoot.style.position = Position.Relative;
             
             
             evt.StopPropagation();
